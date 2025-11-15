@@ -3,10 +3,12 @@ package com.example.camerfoods
 import android.R.attr.contentDescription
 import android.os.Bundle
 import android.provider.Settings
+import android.text.Layout
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -138,5 +140,13 @@ fun  SettingsScreen(){
         Text("Changer la langue",
             style = MaterialTheme.typography.headlineMedium
         )
+    }
+}
+
+@Composable
+fun RecetteScreen(){
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+        Text("Liste des Recettes",
+            style = MaterialTheme.typography.headlineMedium)
     }
 }
