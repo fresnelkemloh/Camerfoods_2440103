@@ -5,12 +5,18 @@ import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -64,6 +70,48 @@ class MainActivity : ComponentActivity() {
             CamerFoodsTheme {
 
             }
+        }
+    }
+}
+
+@Composable
+fun HomeScreen(navController: NavController) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = "Welcome from CamerFoods",
+            style = MaterialTheme.typography.headlineLarge,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Start
+        )
+
+        Spacer(modifier = Modifier.height(40.dp))
+
+        Text(
+            text = "Nous vous souhaitons la bienvenu dans l'application dedie aux recettes africaine et en particulier les recettes camerounaise , vous y decouvrierez de nombreuses recette sans manquer les plus connus des camerounais . nous vous souhaitons une bonne exploration de nos rectte",
+            style  = MaterialTheme.typography.bodyLarge,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(horizontal = 20.dp)
+        )
+
+        Spacer(modifier = Modifier.height(50.dp))
+
+        Button(onClick = {
+            navController.navigate("liste_recettes")
+            {
+                popUpTo(navController.graph.startDestinationId){
+                    saveState = true
+                }
+                launchSingleTop = true
+                restoreState = false
+            }
+        }) {
+            Text("liste des recettes")
         }
     }
 }
