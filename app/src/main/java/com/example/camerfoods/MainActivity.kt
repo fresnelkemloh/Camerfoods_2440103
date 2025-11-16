@@ -93,7 +93,7 @@ fun HomeScreen(navController: NavController) {
             text = "Welcome from CamerFoods",
             style = MaterialTheme.typography.headlineLarge,
             fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Start
+            textAlign = TextAlign.Center,
         )
 
         Spacer(modifier = Modifier.height(40.dp))
@@ -209,5 +209,14 @@ fun AppNavigation() {
                 RecetteScreen()
             }
         }
+    }
+}
+
+
+@Preview
+@Composable
+fun AppPreview(){
+    CamerFoodsTheme{
+        HomeScreen(rememberNavController())
     }
 }
