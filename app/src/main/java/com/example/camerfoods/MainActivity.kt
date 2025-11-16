@@ -19,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -44,6 +45,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import org.jetbrains.annotations.ApiStatus
 
 sealed class Screen(
     val route: String,
@@ -72,7 +74,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             CamerFoodsTheme {
-
+                 AppNavigation()
             }
         }
     }
@@ -148,5 +150,64 @@ fun RecetteScreen(){
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
         Text("Liste des Recettes",
             style = MaterialTheme.typography.headlineMedium)
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AppNavigation() {
+    val navController = rememberNavController()
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("CamerFoods")}
+            )
+        },
+        bottomBar = {
+            NavigationBar {
+                Screen.items.forEach { screen ->
+                    NavigationBarItem(
+                        icon = {
+                            Icon(
+                                screen.icon,
+                                contentDescription = stringResource(screen.titleResource)
+                            )
+                        },
+                        label = {Text(stringResource(screen.titleResource))},
+                        selected = currentRoute == screen.route,
+                        onClick = {
+                            navController.navigate(screen.route) {
+                                popUpTo(navController.graph.startDestinationId){
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
+                    )
+                }
+            }
+        }
+    ) {
+        paddingValues ->
+        NavHost(
+            navController = navController,
+            startDestination = Screen.Home.route,
+            modifier = Modifier.padding(paddingValues)
+        ) {
+            composable(Screen.Home.route){
+                HomeScreen(navController)
+            }
+            composable(Screen.Home.route){
+                SettingsScreen()
+            }
+            composable("liste_recettes"){
+                RecetteScreen()
+            }
+        }
     }
 }
