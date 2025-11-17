@@ -59,7 +59,7 @@ sealed class Screen(
     )
     object Settings : Screen(
         route = "settings",
-        titleResource = R.string.home,
+        titleResource = R.string.settings,
         icon =  Icons.Default.Settings
     )
 
@@ -202,7 +202,7 @@ fun AppNavigation() {
             composable(Screen.Home.route){
                 HomeScreen(navController)
             }
-            composable(Screen.Home.route){
+            composable(Screen.Settings.route){
                 SettingsScreen()
             }
             composable("liste_recettes"){
