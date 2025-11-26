@@ -1,6 +1,8 @@
 package com.example.camerfoods
 
 import android.R.attr.contentDescription
+import android.content.res.Resources
+import android.graphics.drawable.Icon
 import android.os.Bundle
 import android.provider.Settings
 import android.text.Layout
@@ -10,16 +12,23 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -30,11 +39,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.camerfoods.ui.theme.CamerFoodsTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.SegmentedButtonDefaults.Icon
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
@@ -73,8 +90,12 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            CamerFoodsTheme {
-                 AppNavigation()
+            var isDarkTheme by rememberSaveable { mutableStateOf(false)}
+            CamerFoodsTheme(darkTheme = isDarkTheme) {
+                 AppNavigation(
+                     isDarkTheme = isDarkTheme,
+                     onThemeChange = {isDarkTheme= !isDarkTheme}
+                 )
             }
         }
     }
@@ -121,9 +142,11 @@ fun HomeScreen(navController: NavController) {
         }
     }
 }
-
+//////////////////////
 @Composable
-fun  SettingsScreen(){
+fun  SettingsScreen(
+    isDarkTheme: Boolean,
+    onThemeChange:() -> Unit){
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -131,18 +154,99 @@ fun  SettingsScreen(){
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Icon(
-        Icons.Default.Settings,
-        contentDescription = null,
-            modifier = Modifier.size(48.dp)
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                Icons.Default.Settings,
+                contentDescription = null,
+                modifier = Modifier.size(32.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                "Changer la langue",
+                style = MaterialTheme.typography.headlineSmall
+            )
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Text("Changer la langue",
-            style = MaterialTheme.typography.headlineMedium
-        )
+        SelectionLangue()
+
+        Spacer(modifier = Modifier.height(40.dp))
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                Icons.Default.Edit,
+                contentDescription = null,
+                modifier = Modifier.size(32.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                "Changer le theme",
+                style = MaterialTheme.typography.headlineSmall
+            )
+        }
+
+        Spacer(modifier= Modifier.size(16.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = "Mode sombre",
+                style = MaterialTheme.typography.headlineSmall
+            )
+            Switch(
+                checked = isDarkTheme,
+                onCheckedChange = {onThemeChange()}
+            )
+        }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SelectionLangue(){
+    val langages = listOf("Francais","Anglais","Espagnol")
+    var expanded by remember { mutableStateOf(false) }
+    var langueSelectionner by rememberSaveable { mutableStateOf(langages[0]) }
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = {expanded = !expanded}
+    ) { TextField(
+        value = langueSelectionner,
+        onValueChange = {},
+        readOnly = true,
+        label = {Text("Choisir une langue")},
+        trailingIcon = {
+            ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+        },
+        modifier = Modifier
+            .menuAnchor()
+            .fillMaxWidth()
+    )
+    ExposedDropdownMenu(
+        expanded = expanded,
+        onDismissRequest = {expanded = false}
+    ) {
+        langages.forEach { langage ->
+            DropdownMenuItem(
+                text = {Text(langage)},
+                onClick = {
+                    langueSelectionner = langage
+                    expanded = false
+                }
+            )
+        }
+    }}
 }
 
 @Composable
@@ -155,7 +259,10 @@ fun RecetteScreen(){
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppNavigation() {
+fun AppNavigation(
+    isDarkTheme: Boolean,
+    onThemeChange: () -> Unit
+) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -203,7 +310,10 @@ fun AppNavigation() {
                 HomeScreen(navController)
             }
             composable(Screen.Settings.route){
-                SettingsScreen()
+                SettingsScreen(
+                    isDarkTheme = isDarkTheme,
+                    onThemeChange = onThemeChange
+                )
             }
             composable("liste_recettes"){
                 RecetteScreen()
