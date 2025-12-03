@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "titre": "Ndolé",
+    "temps": "1h 30min",
+    "description": "Le plat national camerounais à base de feuilles amères, d'arachides et de viande ou poisson.",
+    "ingredients": ["Feuilles de Ndolé", "Pâte d'arachides", "Viande de boeuf", "Crevettes séchées", "Ail", "Oignon"],
+    "instructions": ["Laver les feuilles de Ndolé.", "Cuire la viande.", "Préparer la pâte d'arachide.", "Mélanger le tout et laisser mijoter."],
+    "image": "ndole",
+    "favori": false
+  },
+  {
+    "id": 2,
+    "titre": "Poulet DG",
+    "temps": "1h 00min",
+    "description": "Un ragoût de poulet festif avec des bananes plantains frites et des légumes.",
+    "ingredients": ["Poulet", "Bananes plantains mûres", "Carottes", "Haricots verts", "Poivrons", "Tomates"],
+    "instructions": ["Frire le poulet.", "Frire les plantains.", "Faire revenir les légumes.", "Mélanger le tout."],
+    "image": "poulet_dg",
+    "favori": false
+  },
+  {
+    "id": 3,
+    "titre": "Koki",
+    "temps": "2h 00min",
+    "description": "Gâteau de haricots (cornille) cuit à la vapeur dans des feuilles de bananier.",
+    "ingredients": ["Haricots Koki (cornille)", "Huile de palme", "Sel", "Piment", "Feuilles de bananier"],
+    "instructions": ["Tremper et éplucher les haricots.", "Ecraser les haricots.", "Mélanger avec l'huile de palme chauffée.", "Emballer dans les feuilles et cuire à la vapeur."],
+    "image": "koki",
+    "favori": false
+  }
+]
