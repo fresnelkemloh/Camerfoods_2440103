@@ -1,16 +1,13 @@
 package com.example.camerfoods
 
-import android.R.attr.contentDescription
-import android.content.res.Resources
-import android.graphics.drawable.Icon
+import android.content.Context
 import android.os.Bundle
-import android.provider.Settings
-import android.text.Layout
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -20,16 +17,25 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -39,21 +45,23 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.camerfoods.ui.theme.CamerFoodsTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.SegmentedButtonDefaults.Icon
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -62,7 +70,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import org.jetbrains.annotations.ApiStatus
 
 sealed class Screen(
     val route: String,
@@ -250,10 +257,137 @@ fun SelectionLangue(){
 }
 
 @Composable
-fun RecetteScreen(){
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
-        Text("Liste des Recettes",
-            style = MaterialTheme.typography.headlineMedium)
+fun RecetteScreen(context: Context,
+                  modifier: Modifier = Modifier
+){
+    var listerecettes by remember { mutableStateOf(emptyList<Recette>()) }
+    var recherche by rememberSaveable{mutableStateOf("")}
+    LaunchedEffect(Unit) {
+        listerecettes = context.lireRecettes()
+    }
+
+    fun toggleFavori(recetteId: Int){
+        val nouvelleListe = listerecettes.map { recette ->
+            if (recette.id == recetteId){
+                recette.copy(favoris = !recette.favoris)
+            }else{
+                recette
+            }
+        }
+        listerecettes = nouvelleListe
+        context.sauvegardeRecettes(nouvelleListe)
+    }
+    val recettesFiltrer = listerecettes.filter { recette ->
+        recette.titre.contains(recherche, ignoreCase = true) || recette.description.contains(recherche, ignoreCase = true)
+    }
+    Column(modifier = modifier.fillMaxSize()) {
+        OutlinedTextField(
+            value = recherche,
+            onValueChange = {recherche=it},
+            label = {Text("Rechercher une recette")},
+            leadingIcon = {Icon(Icons.Default.Search,contentDescription = null)},
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            singleLine = true
+        )
+        LazyColumn(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+        ) {
+            items(recettesFiltrer){recette->
+                FicheRecette(
+                    recette = recette,
+                    onFavoriClick = {toggleFavori(recette.id)}
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun FicheRecette(
+    recette: Recette,
+    onFavoriClick:()-> Unit
+){
+    val context = LocalContext.current
+    var estEtendu by remember {mutableStateOf(false)}
+    val idRessourceImage = remember(recette.image) {
+        val id = context.resources.getIdentifier(recette.image,"drawable",context.packageName)
+        if (id!=0) id else R.drawable.ic_launcher_foreground
+    }
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { estEtendu = !estEtendu },
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Image(
+                    painter = painterResource(id = idRessourceImage),
+                    contentDescription = recette.titre,
+                    modifier = Modifier
+                        .size(80.dp)
+                        .padding(end = 16.dp),
+                    contentScale = ContentScale.Crop
+                )
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = recette.titre,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.DateRange,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = recette.temps,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                }
+                IconButton(onClick = onFavoriClick) {
+                    Icon(
+                        imageVector = if (recette.favoris) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                        contentDescription = "Favori",
+                        tint = if (recette.favoris) Color.Red else MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = recette.description,
+                style = MaterialTheme.typography.bodyMedium,
+                maxLines = if(estEtendu) Int.MAX_VALUE else 2
+            )
+            if (estEtendu){
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "Ingredients :",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold
+                )
+                recette.ingredients.forEach { ingredient ->
+                    Text("• $ingredient", style = MaterialTheme.typography.bodyMedium)
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Preparation :",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold
+                    )
+                    recette.instructions.forEach { etape->
+                        Text("* $etape", style = MaterialTheme.typography.bodyMedium)
+                    }
+            }
+        }
     }
 }
 
@@ -266,6 +400,7 @@ fun AppNavigation(
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+    val context = LocalContext.current
 
 
     Scaffold(
@@ -316,7 +451,7 @@ fun AppNavigation(
                 )
             }
             composable("liste_recettes"){
-                RecetteScreen()
+                RecetteScreen(context = context)
             }
         }
     }
