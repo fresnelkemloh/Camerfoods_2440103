@@ -28,3 +28,13 @@ fun Context.lireRecettes(): List<Recette>{
         return emptyList()
     }
 }
+
+fun Context.sauvegardeRecettes(recettes: List<Recette>){
+    try {
+        val jsonString = Gson().toJson(recettes)
+        val fichier = File(this.filesDir,FICHIER)
+        fichier.writeText(jsonString)
+    } catch (e : Exception){
+        e.printStackTrace()
+    }
+}
