@@ -6,8 +6,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -111,42 +113,57 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun HomeScreen(navController: NavController) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(
-            text = "Welcome from CamerFoods",
-            style = MaterialTheme.typography.headlineLarge,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center,
+    Box(modifier = Modifier.fillMaxSize()) {
+        Image(
+            painter = painterResource(id = R.drawable.image_fond),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize()
         )
-
-        Spacer(modifier = Modifier.height(40.dp))
-
-        Text(
-            text = "Nous vous souhaitons la bienvenu dans l'application dedie aux recettes africaine et en particulier les recettes camerounaise , vous y decouvrierez de nombreuses recette sans manquer les plus connus des camerounais . nous vous souhaitons une bonne exploration de nos rectte",
-            style  = MaterialTheme.typography.bodyLarge,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(horizontal = 20.dp)
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.5f))
         )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = "Welcome from CamerFoods",
+                style = MaterialTheme.typography.headlineLarge,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                color = Color.White
+            )
 
-        Spacer(modifier = Modifier.height(50.dp))
+            Spacer(modifier = Modifier.height(40.dp))
 
-        Button(onClick = {
-            navController.navigate("liste_recettes")
-            {
-                popUpTo(navController.graph.startDestinationId){
-                    saveState = true
+            Text(
+                text = "Nous vous souhaitons la bienvenu dans l'application dedie aux recettes africaine et en particulier les recettes camerounaise , vous y decouvrierez de nombreuses recette sans manquer les plus connus des camerounais . nous vous souhaitons une bonne exploration de nos rectte",
+                style = MaterialTheme.typography.bodyLarge,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(horizontal = 20.dp),
+                color = Color.White
+            )
+
+            Spacer(modifier = Modifier.height(50.dp))
+
+            Button(onClick = {
+                navController.navigate("liste_recettes")
+                {
+                    popUpTo(navController.graph.startDestinationId) {
+                        saveState = true
+                    }
+                    launchSingleTop = true
+                    restoreState = false
                 }
-                launchSingleTop = true
-                restoreState = false
+            }) {
+                Text("liste des recettes")
             }
-        }) {
-            Text("liste des recettes")
         }
     }
 }
