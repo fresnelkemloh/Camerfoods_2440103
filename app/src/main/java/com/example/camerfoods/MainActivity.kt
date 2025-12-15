@@ -27,12 +27,14 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -73,6 +75,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import org.jetbrains.annotations.TestOnly
 
 sealed class Screen(
     val route: String,
@@ -276,7 +279,8 @@ fun SelectionLangue(){
 
 @Composable
 fun RecetteScreen(context: Context,
-                  modifier: Modifier = Modifier
+                  modifier: Modifier = Modifier,
+                  showFavoritesOnly: Boolean = false
 ){
     var listerecettes by remember { mutableStateOf(emptyList<Recette>()) }
     var recherche by rememberSaveable{mutableStateOf("")}
@@ -296,9 +300,22 @@ fun RecetteScreen(context: Context,
         context.sauvegardeRecettes(nouvelleListe)
     }
     val recettesFiltrer = listerecettes.filter { recette ->
-        recette.titre.contains(recherche, ignoreCase = true) || recette.description.contains(recherche, ignoreCase = true)
+     val filtreRecherche =   recette.titre.contains(recherche, ignoreCase = true) || recette.description.contains(recherche, ignoreCase = true)
+        val filtreFavori = if (showFavoritesOnly) recette.favoris else true
+        filtreRecherche && filtreFavori
     }
     Column(modifier = modifier.fillMaxSize()) {
+        if (showFavoritesOnly){
+            Text(
+                text = "Vos favoris",
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Bold
+            )
+        } else {
         OutlinedTextField(
             value = recherche,
             onValueChange = {recherche=it},
@@ -309,16 +326,30 @@ fun RecetteScreen(context: Context,
                 .padding(16.dp),
             singleLine = true
         )
-        LazyColumn(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 16.dp, vertical = 8.dp)
-        ) {
-            items(recettesFiltrer){recette->
-                FicheRecette(
-                    recette = recette,
-                    onFavoriClick = {toggleFavori(recette.id)}
+            }
+        if (recettesFiltrer.isEmpty()){
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+                Text(
+                    text = if (showFavoritesOnly) "Aucun favoris enregistrer"
+                    else "aucune recette",
+                    style = MaterialTheme.typography.bodyLarge
                 )
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(
+                    horizontal = 16.dp,
+                    vertical = 8.dp
+                )
+            ) {
+                items(recettesFiltrer) { recette ->
+                    FicheRecette(
+                        recette = recette,
+                        onFavoriClick = { toggleFavori(recette.id) }
+                    )
+                }
             }
         }
     }
@@ -419,12 +450,41 @@ fun AppNavigation(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val context = LocalContext.current
+    var menuExpanded by remember { mutableStateOf(false) }
 
 
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("CamerFoods")}
+                title = { Text("CamerFoods")},
+                actions = {
+                    IconButton(onClick = {menuExpanded = true}) {
+                        Icon(Icons.Default.MoreVert, contentDescription = "Options")
+                    }
+                    DropdownMenu(
+                        expanded = menuExpanded,
+                        onDismissRequest = {menuExpanded=false}
+                    ) {
+                        DropdownMenuItem(
+                            text =  {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Spacer(Modifier.width(8.dp))
+                                    Text("Favoris")
+                                }
+                            }, onClick = {
+                                menuExpanded =false
+                                navController.navigate("favoris")
+                                {
+                                    popUpTo ( navController.graph.startDestinationId){
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                            }
+                        )
+                    }
+                }
             )
         },
         bottomBar = {
@@ -469,7 +529,10 @@ fun AppNavigation(
                 )
             }
             composable("liste_recettes"){
-                RecetteScreen(context = context)
+                RecetteScreen(context = context, showFavoritesOnly = false)
+            }
+            composable("favoris") {
+                RecetteScreen(context = context, showFavoritesOnly = true)
             }
         }
     }
