@@ -22,7 +22,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
@@ -30,10 +32,13 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -93,8 +98,14 @@ sealed class Screen(
         icon =  Icons.Default.Settings
     )
 
+    object Listes: Screen(
+        route = "listes",
+        titleResource = R.string.shop,
+        icon = Icons.Default.ShoppingCart
+    )
+
     companion object{
-        val items = listOf(Home,Settings)
+        val items = listOf(Home,Settings, Listes)
     }
 }
 
@@ -440,6 +451,126 @@ fun FicheRecette(
     }
 }
 
+@Composable
+fun ListesScreen(modifier: Modifier = Modifier){
+    val context = LocalContext.current
+    var listes by remember { mutableStateOf(emptyList<Ingredient>()) }
+    var ingredientAjouter by remember { mutableStateOf("") }
+    LaunchedEffect(Unit) {
+        listes = context.lireListes()
+    }
+
+    fun ajouterIngredient(){
+        if (ingredientAjouter.isNotBlank()){
+            val nouveau = Ingredient(nom = ingredientAjouter, acheter = false)
+            val nouvelleListe = listes + nouveau
+            listes = nouvelleListe
+            context.sauvegarderListes(nouvelleListe)
+            ingredientAjouter= ""
+        }
+    }
+
+    fun toggleAcheter(ingredient: Ingredient){
+        val nouvelleListe = listes.map { article ->
+            if (article == ingredient){
+                article.copy(acheter = !article.acheter)
+            } else  {
+                article
+            }
+        }
+        listes = nouvelleListe
+        context.sauvegarderListes(nouvelleListe)
+    }
+
+    fun viderListe(){
+        val nouvelleListe = listes.filter { !it.acheter }
+        listes = nouvelleListe
+        context.sauvegarderListes(nouvelleListe)
+    }
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        Text(
+            text = "Votre Liste de Courses 🛒 a acheter",
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            OutlinedTextField(
+                value = ingredientAjouter,
+                onValueChange = {ingredientAjouter = it},
+                label = {Text("Ajouter un articles a la liste...")},
+                modifier = Modifier.weight(1f),
+                singleLine = true
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Button(onClick = {ajouterIngredient()}) {
+                Icon(Icons.Default.Add, contentDescription = "Ajouter")
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        if (listes.isEmpty()){
+            Box(modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth(),contentAlignment = Alignment.Center){
+                Text("Votre liste est vide", color = Color.Gray)
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(listes){article->
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { toggleAcheter(article) },
+                        colors = CardDefaults.cardColors(
+                            containerColor = if (article.acheter) Color.LightGray.copy(alpha = 0.5f) else MaterialTheme.colorScheme.surfaceVariant
+                        )
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Checkbox(
+                                checked = article.acheter,
+                                onCheckedChange = {toggleAcheter(article)}
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = article.nom,
+                                style = MaterialTheme.typography.bodyLarge,
+                                textDecoration = if (article.acheter) androidx.compose.ui.text.style.TextDecoration.LineThrough else null
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        if (listes.any{it.acheter}){
+            Spacer(modifier = Modifier.height(8.dp))
+            Button(
+                onClick = {viderListe()},
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(Icons.Default.Delete, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Cliquer pour supprimer les articles payer")
+            }
+        }
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppNavigation(
@@ -533,6 +664,9 @@ fun AppNavigation(
             }
             composable("favoris") {
                 RecetteScreen(context = context, showFavoritesOnly = true)
+            }
+            composable ( Screen.Listes.route ){
+                ListesScreen()
             }
         }
     }

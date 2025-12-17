@@ -38,3 +38,21 @@ fun Context.sauvegardeRecettes(recettes: List<Recette>){
         e.printStackTrace()
     }
 }
+
+fun Context.sauvegarderListes(liste: List<Ingredient>){
+    val nomFichier = "listes.json"
+    val file = File(this.filesDir,nomFichier)
+    file.writeText(Gson().toJson(liste))
+}
+
+fun Context.lireListes(): List<Ingredient>{
+    val nomFichier = "listes.json"
+    val file = File(this.filesDir,nomFichier)
+    if (file.exists()){
+        val jsonString = file.readText()
+        val type = object : TypeToken<List<Ingredient>>(){}.type
+        return Gson().fromJson(jsonString,type)
+    } else{
+        return emptyList()
+    }
+}
