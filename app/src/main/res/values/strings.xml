@@ -3,4 +3,7 @@
     <string name="home">Accueil</string>
     <string name="settings">Paramètres</string>
     <string name="shop">Listes</string>
+    <string name="rate_app">Partager avis</string>
+    <string name="faq">FAQ</string>
+    <string name="about">À propos</string>
 </resources>

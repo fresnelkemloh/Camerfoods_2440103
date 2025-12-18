@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Delete
@@ -29,16 +30,20 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -47,6 +52,8 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -55,14 +62,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.camerfoods.ui.theme.CamerFoodsTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -80,6 +90,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import kotlinx.coroutines.launch
 import org.jetbrains.annotations.TestOnly
 
 sealed class Screen(
@@ -104,8 +115,27 @@ sealed class Screen(
         icon = Icons.Default.ShoppingCart
     )
 
+    object Avis : Screen(
+        route = "avis",
+        titleResource = R.string.rate_app,
+        icon = Icons.Default.AccountBox
+    )
+
+    object Faq : Screen(
+        route = "faq",
+        titleResource = R.string.faq,
+        icon = Icons.Default.Warning
+    )
+
+    object About : Screen(
+        route = "about",
+        titleResource = R.string.about,
+        icon = Icons.Default.Info
+    )
+
     companion object{
         val items = listOf(Home,Settings, Listes)
+        val lateralItems = listOf(Avis, Faq, About)
     }
 }
 
@@ -571,6 +601,19 @@ fun ListesScreen(modifier: Modifier = Modifier){
     }
 }
 
+@Composable
+fun SimpleInfoScreen(title: String, content: String) {
+    Column(
+        modifier = Modifier.fillMaxSize().padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(text = title, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(text = content, style = MaterialTheme.typography.bodyLarge, textAlign = TextAlign.Center)
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppNavigation(
@@ -582,31 +625,92 @@ fun AppNavigation(
     val currentRoute = navBackStackEntry?.destination?.route
     val context = LocalContext.current
     var menuExpanded by remember { mutableStateOf(false) }
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
 
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            ModalDrawerSheet {
+                Spacer(Modifier.height(12.dp))
+                Text(
+                    text = "Menu CamerFoods",
+                    style = MaterialTheme.typography.headlineSmall,
+                    modifier = Modifier.padding(16.dp)
+                )
+                Spacer(Modifier.height(12.dp))
 
-    Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text("CamerFoods")},
-                actions = {
-                    IconButton(onClick = {menuExpanded = true}) {
-                        Icon(Icons.Default.MoreVert, contentDescription = "Options")
-                    }
-                    DropdownMenu(
-                        expanded = menuExpanded,
-                        onDismissRequest = {menuExpanded=false}
-                    ) {
-                        DropdownMenuItem(
-                            text =  {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Spacer(Modifier.width(8.dp))
-                                    Text("Favoris")
+                Screen.lateralItems.forEach { screen ->
+                    NavigationDrawerItem(
+                        label = { Text(text = stringResource(screen.titleResource)) },
+                        icon = { Icon(screen.icon, contentDescription = null) },
+                        selected = currentRoute == screen.route,
+                        onClick = {
+                            scope.launch { drawerState.close() }
+                            navController.navigate(screen.route) {
+                                popUpTo(navController.graph.startDestinationId) { saveState = true }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        },
+                        modifier = Modifier.padding(horizontal = 12.dp)
+                    )
+                }
+            }
+        }
+    ) {
+        Scaffold(
+            topBar = {
+                CenterAlignedTopAppBar(
+                    title = { Text("CamerFoods") },
+                    navigationIcon = {
+                        IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                            Icon(Icons.Default.Menu, contentDescription = "Ouvrir Menu")
+                        }
+                    },
+                    actions = {
+                        IconButton(onClick = { menuExpanded = true }) {
+                            Icon(Icons.Default.MoreVert, contentDescription = "Options")
+                        }
+                        DropdownMenu(
+                            expanded = menuExpanded,
+                            onDismissRequest = { menuExpanded = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Spacer(Modifier.width(8.dp))
+                                        Text("Favoris")
+                                    }
+                                },
+                                onClick = {
+                                    menuExpanded = false
+                                    navController.navigate("favoris") {
+                                        popUpTo(navController.graph.startDestinationId) { saveState = true }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
                                 }
-                            }, onClick = {
-                                menuExpanded =false
-                                navController.navigate("favoris")
-                                {
-                                    popUpTo ( navController.graph.startDestinationId){
+                            )
+                        }
+                    }
+                )
+            },
+            bottomBar = {
+                NavigationBar {
+                    Screen.items.forEach { screen ->
+                        NavigationBarItem(
+                            icon = {
+                                Icon(
+                                    screen.icon,
+                                    contentDescription = stringResource(screen.titleResource)
+                                )
+                            },
+                            label = { Text(stringResource(screen.titleResource)) },
+                            selected = currentRoute == screen.route,
+                            onClick = {
+                                navController.navigate(screen.route) {
+                                    popUpTo(navController.graph.startDestinationId) {
                                         saveState = true
                                     }
                                     launchSingleTop = true
@@ -616,57 +720,40 @@ fun AppNavigation(
                         )
                     }
                 }
-            )
-        },
-        bottomBar = {
-            NavigationBar {
-                Screen.items.forEach { screen ->
-                    NavigationBarItem(
-                        icon = {
-                            Icon(
-                                screen.icon,
-                                contentDescription = stringResource(screen.titleResource)
-                            )
-                        },
-                        label = {Text(stringResource(screen.titleResource))},
-                        selected = currentRoute == screen.route,
-                        onClick = {
-                            navController.navigate(screen.route) {
-                                popUpTo(navController.graph.startDestinationId){
-                                    saveState = true
-                                }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        }
+            }
+        ) { paddingValues ->
+            NavHost(
+                navController = navController,
+                startDestination = Screen.Home.route,
+                modifier = Modifier.padding(paddingValues)
+            ) {
+                composable(Screen.Home.route) {
+                    HomeScreen(navController)
+                }
+                composable(Screen.Settings.route) {
+                    SettingsScreen(
+                        isDarkTheme = isDarkTheme,
+                        onThemeChange = onThemeChange
                     )
                 }
-            }
-        }
-    ) {
-        paddingValues ->
-        NavHost(
-            navController = navController,
-            startDestination = Screen.Home.route,
-            modifier = Modifier.padding(paddingValues)
-        ) {
-            composable(Screen.Home.route){
-                HomeScreen(navController)
-            }
-            composable(Screen.Settings.route){
-                SettingsScreen(
-                    isDarkTheme = isDarkTheme,
-                    onThemeChange = onThemeChange
-                )
-            }
-            composable("liste_recettes"){
-                RecetteScreen(context = context, showFavoritesOnly = false)
-            }
-            composable("favoris") {
-                RecetteScreen(context = context, showFavoritesOnly = true)
-            }
-            composable ( Screen.Listes.route ){
-                ListesScreen()
+                composable("liste_recettes") {
+                    RecetteScreen(context = context, showFavoritesOnly = false)
+                }
+                composable("favoris") {
+                    RecetteScreen(context = context, showFavoritesOnly = true)
+                }
+                composable(Screen.Listes.route) {
+                    ListesScreen()
+                }
+                composable(Screen.Avis.route) {
+                    SimpleInfoScreen("Votre Avis", "Partagez votre experience ici avec notre application , malheureusement le site n'est pas disponible, peut etre dans la v2 , nous y travaillons.")
+                }
+                composable(Screen.Faq.route) {
+                    SimpleInfoScreen("FAQ", "Questions Fréquentes :\n\n- Comment ajouter une recette ?\n- Comment changer la langue ? \n- Comment ecrire une liste ?\n- Comment changer le theme de l'application ")
+                }
+                composable(Screen.About.route) {
+                    SimpleInfoScreen("À Propos", "CamerFoods v1.0\nDéveloppé par Fresnel pour la cuisine camerounaise , baser a Drummondville, Quebec , Canada.")
+                }
             }
         }
     }
