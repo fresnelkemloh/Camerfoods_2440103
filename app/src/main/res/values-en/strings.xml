@@ -69,4 +69,5 @@
         <item>Mix with heated palm oil.</item>
         <item>Wrap in leaves and steam.</item>
     </string-array>
+    <string name="msg_change_lang_system">To change the language, please change your phone settings.</string>
 </resources>

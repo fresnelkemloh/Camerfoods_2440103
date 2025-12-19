@@ -284,45 +284,30 @@ fun  SettingsScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelectionLangue(){
-    val langages = listOf("Francais","Anglais","Espagnol")
-    var expanded by remember { mutableStateOf(false) }
-    var codeDeLangage = mapOf("Français" to "fr", "English" to "en", "Español" to "es")
-    val currentTags = AppCompatDelegate.getApplicationLocales().toLanguageTags()
-    var langueSelectionner by rememberSaveable { mutableStateOf(if(currentTags.contains("en")) "English" else if(currentTags.contains("es")) "Español" else "Français") }
+   Card(
+       modifier = Modifier.fillMaxWidth(),
+       colors = CardDefaults.cardColors(),
+   ) {
+       Row(
+           modifier = Modifier
+               .padding(16.dp)
+               .fillMaxWidth(),
+           verticalAlignment = Alignment.CenterVertically
+       ) {
+           Icon(
+               imageVector = Icons.Default.Info,
+               contentDescription = null,
+               tint = MaterialTheme.colorScheme.primary
+           )
+           Spacer(modifier = Modifier.width(16.dp))
 
-
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = {expanded = !expanded}
-    ) { TextField(
-        value = langueSelectionner,
-        onValueChange = {},
-        readOnly = true,
-        label = {Text(stringResource(R.string.choose_lang))},
-        trailingIcon = {
-            ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-        },
-        modifier = Modifier
-            .menuAnchor()
-            .fillMaxWidth()
-    )
-    ExposedDropdownMenu(
-        expanded = expanded,
-        onDismissRequest = {expanded = false}
-    ) {
-        langages.forEach { langage ->
-            DropdownMenuItem(
-                text = {Text(langage)},
-                onClick = {
-                    langueSelectionner = langage
-                    expanded = false
-                    val code = codeDeLangage[langage] ?: "fr"
-                    val localeList = LocaleListCompat.forLanguageTags(code)
-                    AppCompatDelegate.setApplicationLocales(localeList)
-                }
-            )
-        }
-    }}
+           Text(
+               text = stringResource(R.string.msg_change_lang_system),
+               style = MaterialTheme.typography.bodyMedium,
+               color = MaterialTheme.colorScheme.onSurfaceVariant
+           )
+       }
+   }
 }
 
 @Composable

@@ -68,4 +68,5 @@
         <item>Mélanger avec l\'huile de palme chauffée.</item>
         <item>Emballer dans les feuilles et cuire à la vapeur.</item>
     </string-array>
+    <string name="msg_change_lang_system">Pour changer la langue, veuillez modifier les paramètres de votre téléphone.</string>
 </resources>

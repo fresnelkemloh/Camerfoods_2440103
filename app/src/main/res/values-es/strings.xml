@@ -67,4 +67,7 @@
         <item>Mezclar con aceite de palma caliente.</item>
         <item>Envolver en hojas y cocinar al vapor.</item>
     </string-array>
+    <string name="msg_change_lang_system">Para cambiar el idioma, cambie la configuración de su teléfono.</string>
+    <string name="empty_list">Tu lista está vacía</string>
+    <string name="delete_paid">Eliminar los artículos comprados</string>
 </resources>
