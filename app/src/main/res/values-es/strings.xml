@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+        <string name="app_name">CamerFoods</string>
+        <string name="home">Inicio</string>
+        <string name="settings">Ajustes</string>
+        <string name="shop">Compras</string>
+        <string name="rate_app">Opinión</string>
+        <string name="faq">FAQ</string>
+        <string name="about">Acerca de</string>
+        <string name="welcome_title">Bienvenido a CamerFoods</string>
+        <string name="welcome_desc">¡Le damos la bienvenida a la aplicación dedicada a las recetas africanas y camerunesas. Descubra nuestros platos tradicionales!</string>
+        <string name="btn_recipes">Ver recetas</string>
+        <string name="settings_title">Ajustes</string>
+        <string name="change_lang">Cambiar idioma</string>
+        <string name="choose_lang">Elegir un idioma</string>
+        <string name="change_theme">Pantalla</string>
+        <string name="dark_mode">Modo oscuro</string>
+        <string name="search_hint">Buscar una receta...</string>
+        <string name="your_favorites">Tus favoritos</string>
+        <string name="no_favorites">Sin favoritos guardados</string>
+        <string name="no_recipes">No se encontraron recetas</string>
+        <string name="ingredients">Ingredientes:</string>
+        <string name="preparation">Preparación:</string>
+        <string name="list_title">Tu Lista de Compras 🛒</string>
+        <string name="add_item">Añadir un artículo...</string>
+        <string name="recette_ndole_titre">Ndolé</string>
+        <string name="recette_ndole_desc">El plato nacional camerunés a base de hojas amargas y cacahuetes.</string>
+        <string name="recette_poulet_titre">Pollo DG</string>
+        <string name="recette_poulet_desc">Un guiso de pollo festivo con plátanos fritos.</string>
+</resources>

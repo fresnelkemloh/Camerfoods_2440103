@@ -28,15 +28,5 @@
     "instructions": ["Tremper et éplucher les haricots.", "Ecraser les haricots.", "Mélanger avec l'huile de palme chauffée.", "Emballer dans les feuilles et cuire à la vapeur."],
     "image": "koki",
     "favoris": false
-  },
-  {
-    "id": 4,
-    "titre": "Beignet haricot bouillie",
-    "temps": "2h 00min",
-    "description": "farine de mais ou de ble ajputer a la levure et oeuf pour mettre dans l'huile.",
-    "ingredients": ["Haricots Koki (cornille)", "Huile de palme", "Sel", "Piment", "Feuilles de bananier"],
-    "instructions": ["Tremper et éplucher les haricots.", "Ecraser les haricots.", "Mélanger avec l'huile de palme chauffée.", "Emballer dans les feuilles et cuire à la vapeur."],
-    "image": "bhb",
-    "favoris": false
   }
 ]

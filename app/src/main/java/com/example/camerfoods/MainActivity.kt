@@ -5,6 +5,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -85,6 +87,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.core.os.LocaleListCompat
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -139,7 +142,7 @@ sealed class Screen(
     }
 }
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -177,7 +180,7 @@ fun HomeScreen(navController: NavController) {
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "Welcome from CamerFoods",
+                text = stringResource(R.string.welcome_title),
                 style = MaterialTheme.typography.headlineLarge,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
@@ -187,7 +190,7 @@ fun HomeScreen(navController: NavController) {
             Spacer(modifier = Modifier.height(40.dp))
 
             Text(
-                text = "Nous vous souhaitons la bienvenu dans l'application dedie aux recettes africaine et en particulier les recettes camerounaise , vous y decouvrierez de nombreuses recette sans manquer les plus connus des camerounais . nous vous souhaitons une bonne exploration de nos rectte",
+                text = stringResource(R.string.welcome_desc),
                 style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(horizontal = 20.dp),
@@ -206,7 +209,7 @@ fun HomeScreen(navController: NavController) {
                     restoreState = false
                 }
             }) {
-                Text("liste des recettes")
+                Text(stringResource(R.string.btn_recipes))
             }
         }
     }
@@ -234,7 +237,7 @@ fun  SettingsScreen(
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                "Changer la langue",
+                stringResource(R.string.settings_title),
                 style = MaterialTheme.typography.headlineSmall
             )
         }
@@ -256,7 +259,7 @@ fun  SettingsScreen(
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                "Changer le theme",
+                stringResource(R.string.change_theme),
                 style = MaterialTheme.typography.headlineSmall
             )
         }
@@ -269,7 +272,7 @@ fun  SettingsScreen(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "Mode sombre",
+                text = stringResource(R.string.dark_mode),
                 style = MaterialTheme.typography.headlineSmall
             )
             Switch(
@@ -285,7 +288,10 @@ fun  SettingsScreen(
 fun SelectionLangue(){
     val langages = listOf("Francais","Anglais","Espagnol")
     var expanded by remember { mutableStateOf(false) }
-    var langueSelectionner by rememberSaveable { mutableStateOf(langages[0]) }
+    var codeDeLangage = mapOf("Français" to "fr", "English" to "en", "Español" to "es")
+    val currentTags = AppCompatDelegate.getApplicationLocales().toLanguageTags()
+    var langueSelectionner by rememberSaveable { mutableStateOf(if(currentTags.contains("en")) "English" else if(currentTags.contains("es")) "Español" else "Français") }
+
 
     ExposedDropdownMenuBox(
         expanded = expanded,
@@ -294,7 +300,7 @@ fun SelectionLangue(){
         value = langueSelectionner,
         onValueChange = {},
         readOnly = true,
-        label = {Text("Choisir une langue")},
+        label = {Text(stringResource(R.string.choose_lang))},
         trailingIcon = {
             ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
         },
@@ -312,6 +318,9 @@ fun SelectionLangue(){
                 onClick = {
                     langueSelectionner = langage
                     expanded = false
+                    val code = codeDeLangage[langage] ?: "fr"
+                    val localeList = LocaleListCompat.forLanguageTags(code)
+                    AppCompatDelegate.setApplicationLocales(localeList)
                 }
             )
         }
@@ -348,7 +357,7 @@ fun RecetteScreen(context: Context,
     Column(modifier = modifier.fillMaxSize()) {
         if (showFavoritesOnly){
             Text(
-                text = "Vos favoris",
+                text = stringResource(R.string.your_favorites),
                 style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier
                     .padding(16.dp)
@@ -360,7 +369,7 @@ fun RecetteScreen(context: Context,
         OutlinedTextField(
             value = recherche,
             onValueChange = {recherche=it},
-            label = {Text("Rechercher une recette")},
+            label = {Text(stringResource(R.string.search_hint))},
             leadingIcon = {Icon(Icons.Default.Search,contentDescription = null)},
             modifier = Modifier
                 .fillMaxWidth()
@@ -371,8 +380,8 @@ fun RecetteScreen(context: Context,
         if (recettesFiltrer.isEmpty()){
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
                 Text(
-                    text = if (showFavoritesOnly) "Aucun favoris enregistrer"
-                    else "aucune recette",
+                    text = if (showFavoritesOnly) stringResource(R.string.no_favorites)
+                    else stringResource(R.string.no_recipes),
                     style = MaterialTheme.typography.bodyLarge
                 )
             }
@@ -460,7 +469,7 @@ fun FicheRecette(
             if (estEtendu){
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = "Ingredients :",
+                    stringResource(R.string.ingredients),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold
                 )
@@ -469,7 +478,7 @@ fun FicheRecette(
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Preparation :",
+                        text = stringResource(R.string.preparation),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold
                     )
@@ -523,7 +532,7 @@ fun ListesScreen(modifier: Modifier = Modifier){
             .padding(16.dp)
     ) {
         Text(
-            text = "Votre Liste de Courses 🛒 a acheter",
+            text = stringResource(R.string.list_title),
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = 16.dp)
@@ -535,7 +544,7 @@ fun ListesScreen(modifier: Modifier = Modifier){
             OutlinedTextField(
                 value = ingredientAjouter,
                 onValueChange = {ingredientAjouter = it},
-                label = {Text("Ajouter un articles a la liste...")},
+                label = {Text(stringResource(R.string.add_item))},
                 modifier = Modifier.weight(1f),
                 singleLine = true
             )
@@ -551,7 +560,7 @@ fun ListesScreen(modifier: Modifier = Modifier){
             Box(modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth(),contentAlignment = Alignment.Center){
-                Text("Votre liste est vide", color = Color.Gray)
+                Text(stringResource(R.string.empty_list), color = Color.Gray)
             }
         } else {
             LazyColumn(
@@ -595,7 +604,7 @@ fun ListesScreen(modifier: Modifier = Modifier){
             ) {
                 Icon(Icons.Default.Delete, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Cliquer pour supprimer les articles payer")
+                Text(stringResource(R.string.delete_paid))
             }
         }
     }
@@ -680,7 +689,7 @@ fun AppNavigation(
                                 text = {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Spacer(Modifier.width(8.dp))
-                                        Text("Favoris")
+                                        Text(stringResource(R.string.your_favorites))
                                     }
                                 },
                                 onClick = {
@@ -746,13 +755,13 @@ fun AppNavigation(
                     ListesScreen()
                 }
                 composable(Screen.Avis.route) {
-                    SimpleInfoScreen("Votre Avis", "Partagez votre experience ici avec notre application , malheureusement le site n'est pas disponible, peut etre dans la v2 , nous y travaillons.")
+                    SimpleInfoScreen(stringResource(R.string.rate_app), "Attendez la v2 dans bientot")
                 }
                 composable(Screen.Faq.route) {
-                    SimpleInfoScreen("FAQ", "Questions Fréquentes :\n\n- Comment ajouter une recette ?\n- Comment changer la langue ? \n- Comment ecrire une liste ?\n- Comment changer le theme de l'application ")
+                    SimpleInfoScreen(stringResource(R.string.faq), "Questions Fréquentes :\n\n- Comment ajouter une recette ?\n- Comment changer la langue ? \n- Comment ecrire une liste ?\n- Comment changer le theme de l'application ")
                 }
                 composable(Screen.About.route) {
-                    SimpleInfoScreen("À Propos", "CamerFoods v1.0\nDéveloppé par Fresnel pour la cuisine camerounaise , baser a Drummondville, Quebec , Canada.")
+                    SimpleInfoScreen(stringResource(R.string.about), "CamerFoods v1.0\nDrummondville, Quebec , Canada.")
                 }
             }
         }
