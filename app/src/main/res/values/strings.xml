@@ -24,8 +24,48 @@
     <string name="add_item">Ajouter un article...</string>
     <string name="empty_list">Votre liste est vide</string>
     <string name="delete_paid">Supprimer les articles achetés</string>
-    <string name="recette_ndole_titre">Ndolé</string>
-    <string name="recette_ndole_desc">Le plat national camerounais à base de feuilles amères et d\'arachides.</string>
-    <string name="recette_poulet_titre">Poulet DG</string>
-    <string name="recette_poulet_desc">Un ragoût de poulet festif avec des bananes plantains frites.</string>
+    <string name="v2_soon">Attendez la v2 bientôt !</string>
+    <string name="faq_content">"Questions Fréquentes :\n\n- Comment ajouter une recette ?\n- Comment changer la langue ?\n- Comment écrire une liste ?\n- Comment changer le thème de l\'application ?"</string>
+    <string name="ndole_desc">Le plat national camerounais à base de feuilles amères, d\'arachides et de viande ou poisson.</string>
+    <string-array name="ndole_ingredients">
+        <item>Feuilles de Ndolé</item>
+        <item>Pâte d\'arachides</item>
+        <item>Viande de boeuf</item>
+        <item>Crevettes séchées</item>
+        <item>Ail et Oignon</item>
+    </string-array>
+    <string-array name="ndole_instructions">
+        <item>Laver les feuilles de Ndolé.</item>
+        <item>Cuire la viande.</item>
+        <item>Préparer la pâte d\'arachide.</item>
+        <item>Mélanger le tout et laisser mijoter.</item>
+    </string-array>
+
+    <string name="poulet_dg_desc">Un ragoût de poulet festif avec des bananes plantains frites et des légumes.</string>
+    <string-array name="poulet_dg_ingredients">
+        <item>Poulet</item>
+        <item>Bananes plantains mûres</item>
+        <item>Carottes et Haricots verts</item>
+        <item>Poivrons et Tomates</item>
+    </string-array>
+    <string-array name="poulet_dg_instructions">
+        <item>Frire le poulet.</item>
+        <item>Frire les plantains.</item>
+        <item>Faire revenir les légumes.</item>
+        <item>Mélanger le tout.</item>
+    </string-array>
+
+    <string name="koki_desc">Gâteau de haricots (cornille) cuit à la vapeur dans des feuilles de bananier.</string>
+    <string-array name="koki_ingredients">
+        <item>Haricots Koki (cornille)</item>
+        <item>Huile de palme</item>
+        <item>Sel et Piment</item>
+        <item>Feuilles de bananier</item>
+    </string-array>
+    <string-array name="koki_instructions">
+        <item>Tremper et éplucher les haricots.</item>
+        <item>Ecraser les haricots.</item>
+        <item>Mélanger avec l\'huile de palme chauffée.</item>
+        <item>Emballer dans les feuilles et cuire à la vapeur.</item>
+    </string-array>
 </resources>

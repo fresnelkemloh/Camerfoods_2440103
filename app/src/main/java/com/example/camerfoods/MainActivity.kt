@@ -2,7 +2,6 @@ package com.example.camerfoods
 
 import android.content.Context
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -68,7 +67,6 @@ import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -83,6 +81,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -94,7 +93,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
-import org.jetbrains.annotations.TestOnly
 
 sealed class Screen(
     val route: String,
@@ -412,6 +410,12 @@ fun FicheRecette(
 ){
     val context = LocalContext.current
     var estEtendu by remember {mutableStateOf(false)}
+    val idDescription = context.resources.getIdentifier("${recette.image}_desc", "string", context.packageName)
+    val descriptiontraduit = if (idDescription != 0) stringResource(idDescription) else recette.description
+    val idIngredient = context.resources.getIdentifier("${recette.image}_ingredients", "array", context.packageName)
+    val ingredientsTraduit = if (idIngredient != 0) stringArrayResource(idIngredient).toList() else recette.ingredients
+    val idInstruction = context.resources.getIdentifier("${recette.image}_instructions", "array", context.packageName)
+    val instructionsTraduit = if (idInstruction != 0) stringArrayResource(idInstruction).toList() else recette.instructions
     val idRessourceImage = remember(recette.image) {
         val id = context.resources.getIdentifier(recette.image,"drawable",context.packageName)
         if (id!=0) id else R.drawable.ic_launcher_foreground
@@ -462,7 +466,7 @@ fun FicheRecette(
             }
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = recette.description,
+                text = descriptiontraduit,
                 style = MaterialTheme.typography.bodyMedium,
                 maxLines = if(estEtendu) Int.MAX_VALUE else 2
             )
@@ -473,7 +477,7 @@ fun FicheRecette(
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold
                 )
-                recette.ingredients.forEach { ingredient ->
+                ingredientsTraduit.forEach { ingredient ->
                     Text("• $ingredient", style = MaterialTheme.typography.bodyMedium)
                 }
                 Spacer(modifier = Modifier.height(8.dp))
@@ -482,7 +486,7 @@ fun FicheRecette(
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold
                     )
-                    recette.instructions.forEach { etape->
+                    instructionsTraduit.forEach { etape->
                         Text("* $etape", style = MaterialTheme.typography.bodyMedium)
                     }
             }
@@ -755,10 +759,10 @@ fun AppNavigation(
                     ListesScreen()
                 }
                 composable(Screen.Avis.route) {
-                    SimpleInfoScreen(stringResource(R.string.rate_app), "Attendez la v2 dans bientot")
+                    SimpleInfoScreen(stringResource(R.string.rate_app),  stringResource(R.string.v2_soon))
                 }
                 composable(Screen.Faq.route) {
-                    SimpleInfoScreen(stringResource(R.string.faq), "Questions Fréquentes :\n\n- Comment ajouter une recette ?\n- Comment changer la langue ? \n- Comment ecrire une liste ?\n- Comment changer le theme de l'application ")
+                    SimpleInfoScreen(stringResource(R.string.faq), stringResource(R.string.faq_content))
                 }
                 composable(Screen.About.route) {
                     SimpleInfoScreen(stringResource(R.string.about), "CamerFoods v1.0\nDrummondville, Quebec , Canada.")

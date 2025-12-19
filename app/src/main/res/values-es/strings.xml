@@ -23,8 +23,48 @@
         <string name="preparation">Preparación:</string>
         <string name="list_title">Tu Lista de Compras 🛒</string>
         <string name="add_item">Añadir un artículo...</string>
-        <string name="recette_ndole_titre">Ndolé</string>
-        <string name="recette_ndole_desc">El plato nacional camerunés a base de hojas amargas y cacahuetes.</string>
-        <string name="recette_poulet_titre">Pollo DG</string>
-        <string name="recette_poulet_desc">Un guiso de pollo festivo con plátanos fritos.</string>
+    <string name="v2_soon">¡Espere la v2 pronto!</string>
+    <string name="faq_content">"Preguntas frecuentes:\n\n- ¿Cómo añadir una receta?\n- ¿Cómo cambiar el idioma?\n- ¿Cómo escribir una lista?\n- ¿Cómo cambiar el tema de la aplicación?"</string>
+    <string name="ndole_desc">El plato nacional camerunés a base de hojas amargas, cacahuetes y carne o pescado.</string>
+    <string-array name="ndole_ingredients">
+        <item>Hojas de Ndole</item>
+        <item>Pasta de cacahuete</item>
+        <item>Carne de res</item>
+        <item>Camarones secos</item>
+        <item>Ajo y Cebolla</item>
+    </string-array>
+    <string-array name="ndole_instructions">
+        <item>Lavar las hojas de Ndole.</item>
+        <item>Cocinar la carne.</item>
+        <item>Preparar la pasta de cacahuete.</item>
+        <item>Mezclar todo y cocinar a fuego lento.</item>
+    </string-array>
+
+    <string name="poulet_dg_desc">Un guiso de pollo festivo con plátanos fritos y verduras.</string>
+    <string-array name="poulet_dg_ingredients">
+        <item>Pollo</item>
+        <item>Plátanos maduros</item>
+        <item>Zanahorias y Judías verdes</item>
+        <item>Pimientos y Tomates</item>
+    </string-array>
+    <string-array name="poulet_dg_instructions">
+        <item>Freír el pollo.</item>
+        <item>Freír los plátanos.</item>
+        <item>Saltear las verduras.</item>
+        <item>Mezclar todo junto.</item>
+    </string-array>
+
+    <string name="koki_desc">Pastel de frijoles (alubias) cocido al vapor en hojas de plátano.</string>
+    <string-array name="koki_ingredients">
+        <item>Frijoles Koki</item>
+        <item>Aceite de palma</item>
+        <item>Sal y Chile</item>
+        <item>Hojas de plátano</item>
+    </string-array>
+    <string-array name="koki_instructions">
+        <item>Remojar y pelar los frijoles.</item>
+        <item>Triturar los frijoles.</item>
+        <item>Mezclar con aceite de palma caliente.</item>
+        <item>Envolver en hojas y cocinar al vapor.</item>
+    </string-array>
 </resources>

@@ -25,8 +25,48 @@
     <string name="add_item">Add an item...</string>
     <string name="empty_list">Your list is empty</string>
     <string name="delete_paid">Delete bought items</string>
-    <string name="recette_ndole_titre">Ndole</string>
-    <string name="recette_ndole_desc">The national Cameroonian dish made with bitter leaves and peanuts.</string>
-    <string name="recette_poulet_titre">Chicken DG</string>
-    <string name="recette_poulet_desc">A festive chicken stew with fried plantains.</string>
+    <string name="v2_soon">Wait for v2 coming soon!</string>
+    <string name="faq_content">"Frequently Asked Questions:\n\n- How to add a recipe?\n- How to change the language?\n- How to write a list?\n- How to change the app theme?"</string>
+    <string name="ndole_desc">The national Cameroonian dish made with bitter leaves, peanuts and meat or fish.</string>
+    <string-array name="ndole_ingredients">
+        <item>Ndole leaves</item>
+        <item>Peanut paste</item>
+        <item>Beef meat</item>
+        <item>Dried shrimp</item>
+        <item>Garlic and Onion</item>
+    </string-array>
+    <string-array name="ndole_instructions">
+        <item>Wash the Ndole leaves.</item>
+        <item>Cook the meat.</item>
+        <item>Prepare the peanut paste.</item>
+        <item>Mix everything and let simmer.</item>
+    </string-array>
+
+    <string name="poulet_dg_desc">A festive chicken stew with fried plantains and vegetables.</string>
+    <string-array name="poulet_dg_ingredients">
+        <item>Chicken</item>
+        <item>Ripe plantains</item>
+        <item>Carrots and Green beans</item>
+        <item>Peppers and Tomatoes</item>
+    </string-array>
+    <string-array name="poulet_dg_instructions">
+        <item>Fry the chicken.</item>
+        <item>Fry the plantains.</item>
+        <item>Sauté the vegetables.</item>
+        <item>Mix everything together.</item>
+    </string-array>
+
+    <string name="koki_desc">Bean cake (black-eyed peas) steamed in banana leaves.</string>
+    <string-array name="koki_ingredients">
+        <item>Koki beans (black-eyed peas)</item>
+        <item>Palm oil</item>
+        <item>Salt and Chili</item>
+        <item>Banana leaves</item>
+    </string-array>
+    <string-array name="koki_instructions">
+        <item>Soak and peel the beans.</item>
+        <item>Mash the beans.</item>
+        <item>Mix with heated palm oil.</item>
+        <item>Wrap in leaves and steam.</item>
+    </string-array>
 </resources>
