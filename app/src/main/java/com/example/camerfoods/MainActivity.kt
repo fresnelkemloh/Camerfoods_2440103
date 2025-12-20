@@ -6,6 +6,11 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -183,6 +188,11 @@ class MainActivity : AppCompatActivity() {
  */
 @Composable
 fun HomeScreen(navController: NavController) {
+    var animationDuTitre by remember { mutableStateOf(false) }
+    // Delenche l'animation
+    LaunchedEffect(Unit) {
+        animationDuTitre = true
+    }
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
             painter = painterResource(id = R.drawable.image_fond),
@@ -204,13 +214,19 @@ fun HomeScreen(navController: NavController) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text(
-                text = stringResource(R.string.welcome_title),
-                style = MaterialTheme.typography.headlineLarge,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center,
-                color = Color.White
-            )
+            // l'animation du titre de bienvenue du haut vers le bas
+            AnimatedVisibility(
+                visible = animationDuTitre,
+                enter = slideInVertically(initialOffsetY = { -90 })
+            ) {
+                Text(
+                    text = stringResource(R.string.welcome_title),
+                    style = MaterialTheme.typography.headlineLarge,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    color = Color.White
+                )
+            }
 
             Spacer(modifier = Modifier.height(40.dp))
 
@@ -311,6 +327,7 @@ fun  SettingsScreen(
                 text = stringResource(R.string.dark_mode),
                 style = MaterialTheme.typography.headlineSmall
             )
+            // declenche le changement de theme
             Switch(
                 checked = isDarkTheme,
                 onCheckedChange = {onThemeChange()}
@@ -330,7 +347,7 @@ fun  SettingsScreen(
 fun SelectionLangue(){
    Card(
        modifier = Modifier.fillMaxWidth(),
-       colors = CardDefaults.cardColors(),
+       colors = CardDefaults.cardColors(), // couleur par defaut  de la card
    ) {
        Row(
            modifier = Modifier
@@ -338,13 +355,14 @@ fun SelectionLangue(){
                .fillMaxWidth(),
            verticalAlignment = Alignment.CenterVertically
        ) {
+           // adpatation de l'image
            Icon(
                imageVector = Icons.Default.Info,
                contentDescription = null,
                tint = MaterialTheme.colorScheme.primary
            )
            Spacer(modifier = Modifier.width(16.dp))
-
+                 //style sur le texte pour passer une information
            Text(
                text = stringResource(R.string.msg_change_lang_system),
                style = MaterialTheme.typography.bodyMedium,
@@ -476,7 +494,8 @@ fun FicheRecette(
             .clickable { estEtendu = !estEtendu },
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(16.dp)
+            .animateContentSize()) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Image(
                     painter = painterResource(id = idRessourceImage),
@@ -562,7 +581,12 @@ fun ListesScreen(modifier: Modifier = Modifier){
     LaunchedEffect(Unit) {
         listes = context.lireListes()
     }
-
+    /**
+     * fonction d'ajout d'un ingrédient.
+     *
+     * Elle valide l'entrée
+     * Elle met à jour l'état de l'application et la sauvegarde.
+     */
     fun ajouterIngredient(){
         if (ingredientAjouter.isNotBlank()){
             val nouveau = Ingredient(nom = ingredientAjouter, acheter = false)
@@ -573,6 +597,13 @@ fun ListesScreen(modifier: Modifier = Modifier){
         }
     }
 
+    /**
+     * Bascule l'état achter d'un ingrédient.
+     *
+     * La fonction met à jour la liste.
+     *
+     * @param ingredient L'objet [Ingredient] sur lequel l'utilisateur a cliqué.
+     */
     fun toggleAcheter(ingredient: Ingredient){
         val nouvelleListe = listes.map { article ->
             if (article == ingredient){
@@ -585,6 +616,11 @@ fun ListesScreen(modifier: Modifier = Modifier){
         context.sauvegarderListes(nouvelleListe)
     }
 
+    /**
+     * Fonction pour vider la liste.
+     *
+     * Cette fonction supprime  tous les éléments chocher.
+     */
     fun viderListe(){
         val nouvelleListe = listes.filter { !it.acheter }
         listes = nouvelleListe
@@ -638,6 +674,7 @@ fun ListesScreen(modifier: Modifier = Modifier){
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .animateItem()
                             .clickable { toggleAcheter(article) },
                         colors = CardDefaults.cardColors(
                             containerColor = if (article.acheter) Color.LightGray.copy(alpha = 0.5f) else MaterialTheme.colorScheme.surfaceVariant
@@ -718,9 +755,10 @@ fun AppNavigation(
     var menuExpanded by remember { mutableStateOf(false) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-
+// permet de superposer le contenu de la de la barre lateral sur tout le contenu.
     ModalNavigationDrawer(
         drawerState = drawerState,
+        // contenu de la barre lateral
         drawerContent = {
             ModalDrawerSheet {
                 Spacer(Modifier.height(12.dp))
@@ -738,6 +776,7 @@ fun AppNavigation(
                         selected = currentRoute == screen.route,
                         onClick = {
                             scope.launch { drawerState.close() }
+                            // navigation
                             navController.navigate(screen.route) {
                                 popUpTo(navController.graph.startDestinationId) { saveState = true }
                                 launchSingleTop = true
@@ -754,11 +793,13 @@ fun AppNavigation(
             topBar = {
                 CenterAlignedTopAppBar(
                     title = { Text("CamerFoods") },
+                    // bouton pour ouvrir la navigation lateral
                     navigationIcon = {
                         IconButton(onClick = { scope.launch { drawerState.open() } }) {
                             Icon(Icons.Default.Menu, contentDescription = "Ouvrir Menu")
                         }
                     },
+                    //  bouton pour les favoris
                     actions = {
                         IconButton(onClick = { menuExpanded = true }) {
                             Icon(Icons.Default.MoreVert, contentDescription = "Options")
@@ -813,10 +854,37 @@ fun AppNavigation(
                 }
             }
         ) { paddingValues ->
+            //remplace le contenu en fonction de la route
             NavHost(
                 navController = navController,
                 startDestination = Screen.Home.route,
-                modifier = Modifier.padding(paddingValues)
+                modifier = Modifier.padding(paddingValues),
+                // Animation des transition d'un ecran a l'autre et durent 1 seconde :
+                //on a le defilement vers le haut, le bas , gauche et droite .
+                enterTransition = {
+                    slideIntoContainer(
+                        towards = AnimatedContentTransitionScope.SlideDirection.Left,
+                        animationSpec = tween(1000)
+                    )
+                },
+                exitTransition = {
+                    slideOutOfContainer(
+                        towards = AnimatedContentTransitionScope.SlideDirection.Right,
+                        animationSpec = tween(1000)
+                    )
+                },
+                popEnterTransition = {
+                    slideIntoContainer(
+                        towards = AnimatedContentTransitionScope.SlideDirection.Up,
+                        animationSpec = tween(1000)
+                    )
+                },
+                popExitTransition = {
+                    slideOutOfContainer(
+                        towards = AnimatedContentTransitionScope.SlideDirection.Down,
+                        animationSpec = tween(1000)
+                    )
+                }
             ) {
                 composable(Screen.Home.route) {
                     HomeScreen(navController)
