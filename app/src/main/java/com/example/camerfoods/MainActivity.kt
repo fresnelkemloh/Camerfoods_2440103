@@ -93,6 +93,13 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
 
+/**
+ * Defini la structure de la navigation de l'application.
+ *
+ * @property route L'identifiant de la destination pour le NavController.
+ * @property titleResource L'Identifiant de la ressource string pour le titre.
+ * @property icon L'icône de l'écran.
+ */
 sealed class Screen(
     val route: String,
     val titleResource: Int,
@@ -132,18 +139,28 @@ sealed class Screen(
         titleResource = R.string.about,
         icon = Icons.Default.Info
     )
-
+    /** Liste des écrans affichés dans la barre de navigation inférieure.
+     * Liste des écrans affichés dans le menu latéral
+     * */
     companion object{
         val items = listOf(Home,Settings, Listes)
         val lateralItems = listOf(Avis, Faq, About)
     }
 }
 
+/**
+ * Point principal de l'application.
+ *
+ * Hérite de [AppCompatActivity] pour le changement de langue.
+ *
+ * Initialise le thème [CamerFoodsTheme] et lance la navigation principale.
+ */
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+            // etat pour le theme sombre ou clair
             var isDarkTheme by rememberSaveable { mutableStateOf(false)}
             CamerFoodsTheme(darkTheme = isDarkTheme) {
                  AppNavigation(
@@ -155,6 +172,15 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
+/**
+ * Écran d'accueil.
+ *
+ * Affiche une image de fond sombre, un message de bienvenue et un bouton
+ * pour voir les recettes.
+ * Utilise [verticalScroll] pour l'adaptation aux petits écrans et au mode paysage.
+ *
+ * @param navController Le contrôleur pour naviguer vers la liste des recettes.
+ */
 @Composable
 fun HomeScreen(navController: NavController) {
     Box(modifier = Modifier.fillMaxSize()) {
@@ -164,6 +190,7 @@ fun HomeScreen(navController: NavController) {
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()
         )
+        // Pour assombrir l'image de fond dans Home
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -213,6 +240,16 @@ fun HomeScreen(navController: NavController) {
     }
 }
 //////////////////////
+
+/**
+ * Écran des paramètres.
+ *
+ * Permet de savoir comment changer la langue
+ * et de basculer entre le mode sombre et clair.
+ *
+ * @param isDarkTheme État actuel du thème.
+ * @param onThemeChange utilise lors du changement de thème.
+ */
 @Composable
 fun  SettingsScreen(
     isDarkTheme: Boolean,
@@ -282,6 +319,12 @@ fun  SettingsScreen(
     }
 }
 
+/**
+ * Composant d'information sur la sélection de la langue.
+ *
+ * Affiche un message indiquant à l'utilisateur que l'application est changee en fonction de la langue du système.
+ * Utilise une Card pour la présentation de ce texte.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelectionLangue(){
@@ -311,6 +354,15 @@ fun SelectionLangue(){
    }
 }
 
+/**
+ * Écran qui montre la liste des recettes.
+ *
+ * Gère le chargement des données, la recherche et le filtrage des favoris.
+ * Utilise [LazyColumn] pour afficher une liste d'éléments [FicheRecette].
+ *
+ * @param context Contexte Android pour l'accès aux fichiers et ressources.
+ * @param showFavoritesOnly Si c'est vrai elle n'affiche que les recettes marquées comme favorites.
+ */
 @Composable
 fun RecetteScreen(context: Context,
                   modifier: Modifier = Modifier,
@@ -318,10 +370,12 @@ fun RecetteScreen(context: Context,
 ){
     var listerecettes by remember { mutableStateOf(emptyList<Recette>()) }
     var recherche by rememberSaveable{mutableStateOf("")}
+
+    // Pour le chargement des donnee avec LaunchedEffect
     LaunchedEffect(Unit) {
         listerecettes = context.lireRecettes()
     }
-
+// fonction pour gerer le cli sur les favoris et sauvegarde
     fun toggleFavori(recetteId: Int){
         val nouvelleListe = listerecettes.map { recette ->
             if (recette.id == recetteId){
@@ -333,6 +387,7 @@ fun RecetteScreen(context: Context,
         listerecettes = nouvelleListe
         context.sauvegardeRecettes(nouvelleListe)
     }
+    // pour le filtrage selon le favoris et la recherche
     val recettesFiltrer = listerecettes.filter { recette ->
      val filtreRecherche =   recette.titre.contains(recherche, ignoreCase = true) || recette.description.contains(recherche, ignoreCase = true)
         val filtreFavori = if (showFavoritesOnly) recette.favoris else true
@@ -389,6 +444,15 @@ fun RecetteScreen(context: Context,
     }
 }
 
+/**
+ * Composant qui affiche la representation ou l'affichage d'une recette.
+ *
+ * on construit l'affichaage en fonction des donne dans [Recette] , aussi on utilise le nom
+ * de l'image comme identifiant.on rend aussi la carte extensible (il faut cliquer pour agrandir la liste)
+ *
+ * @param recette L'objet [Recette] à afficher.
+ * @param onFavoriClick Action à effectuer lors du clic sur le cœur.
+ */
 @Composable
 fun FicheRecette(
     recette: Recette,
@@ -456,6 +520,7 @@ fun FicheRecette(
                 style = MaterialTheme.typography.bodyMedium,
                 maxLines = if(estEtendu) Int.MAX_VALUE else 2
             )
+            // detail si la carte est etendue
             if (estEtendu){
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
@@ -480,6 +545,13 @@ fun FicheRecette(
     }
 }
 
+/**
+ * Écran pour la gestion de la liste de courses.
+ *
+ * Permet d'ajouter des ingrédients, de les cocher et barrer et de supprimer uniquement les éléments achetés.
+ *
+ * Utilise [LocalConfiguration] pour détecter l'orientation de l'écran pour pouvoir gerer l'adaptativite en fonction de portrait et paysage.
+ */
 @Composable
 fun ListesScreen(modifier: Modifier = Modifier){
     val context = LocalContext.current
@@ -523,6 +595,7 @@ fun ListesScreen(modifier: Modifier = Modifier){
             .fillMaxSize()
             .padding(16.dp)
     ) {
+        //Affichage selon l'orientation de l'ecran
         if (modePortrait) {
             Text(
                 text = stringResource(R.string.list_title),
@@ -604,6 +677,12 @@ fun ListesScreen(modifier: Modifier = Modifier){
     }
 }
 
+/**
+ * Ecran utilisé pour afficher les pages statiques.
+ *
+ * @param title Le titre de la page.
+ * @param content Le corps du texte à afficher.
+ */
 @Composable
 fun SimpleInfoScreen(title: String, content: String) {
     Column(
@@ -617,6 +696,15 @@ fun SimpleInfoScreen(title: String, content: String) {
     }
 }
 
+/**
+ * Gestionnaire principal de la navigation.
+ *
+ * Configure le [Scaffold], la barre supérieure, la barre de navigation inférieure
+ * et le menu latéral. Contient le [NavHost] qui gère les transitions entre les écrans.
+ *
+ * @param isDarkTheme État actuel du thème.
+ * @param onThemeChange Pour changer le thème.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppNavigation(
@@ -748,12 +836,15 @@ fun AppNavigation(
                 composable(Screen.Listes.route) {
                     ListesScreen()
                 }
+                // affichage du contenu dans Avis
                 composable(Screen.Avis.route) {
                     SimpleInfoScreen(stringResource(R.string.rate_app),  stringResource(R.string.v2_soon))
                 }
+                // affichage du contenu dans FAQ
                 composable(Screen.Faq.route) {
                     SimpleInfoScreen(stringResource(R.string.faq), stringResource(R.string.faq_content))
                 }
+                // affichage du contenu dans A propos
                 composable(Screen.About.route) {
                     SimpleInfoScreen(stringResource(R.string.about), "CamerFoods v1.0\nDrummondville, Quebec , Canada.")
                 }
